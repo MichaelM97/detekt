@@ -14,7 +14,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       JDK_VERSION:  ${{ matrix.jdk }}
-      GRADLE_OPTS: -Dorg.gradle.daemon=false
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v2
