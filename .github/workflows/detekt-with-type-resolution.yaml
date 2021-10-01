@@ -18,23 +18,15 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@v2
 
-      - name: Cache Gradle Folders
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.gradle/caches/
-            ~/.gradle/wrapper/
-          key: cache-gradle-${{ hashFiles('gradle/libs.versions.toml') }}
-          restore-keys: |
-            cache-gradle-
-
       - name: Setup Java
         uses: actions/setup-java@v2
         with:
           java-version: 11
           distribution: 'temurin'
       - name: Package executable jar
-        run: ./gradlew moveJarForIntegrationTest
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: moveJarForIntegrationTest
 
       - name: Run detekt-cli with argsfile
         run: java -jar ./build/detekt-cli-all.jar "@./config/detekt/argsfile"
@@ -55,19 +47,12 @@ jobs:
     - name: Checkout Repo
       uses: actions/checkout@v2
 
-    - name: Cache Gradle Folders
-      uses: actions/cache@v2
-      with:
-        path: |
-          ~/.gradle/caches/
-          ~/.gradle/wrapper/
-        key: cache-gradle-${{ hashFiles('gradle/libs.versions.toml') }}
-        restore-keys: |
-          cache-gradle-
     - name: Setup Java
       uses: actions/setup-java@v2
       with:
         java-version: 11
         distribution: 'temurin'
     - name: Run analysis
-      run: ./gradlew detektMain detektTest
+      uses: gradle/gradle-build-action@v2
+      with:
+        arguments: detektMain detektTest
