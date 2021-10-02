@@ -24,7 +24,7 @@ jobs:
       - name: Package executable jar
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: moveJarForIntegrationTest
+          arguments: --configuration-cache moveJarForIntegrationTest
 
       - name: Run detekt-cli with argsfile
         run: java -jar ./build/detekt-cli-all.jar "@./config/detekt/argsfile"
@@ -51,4 +51,4 @@ jobs:
     - name: Run analysis
       uses: gradle/gradle-build-action@v2
       with:
-        arguments: detektMain detektTest
+        arguments: --configuration-cache detektMain detektTest
