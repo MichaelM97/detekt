@@ -13,6 +13,7 @@ internal fun getSuppressors(rule: BaseRule): List<Suppressor> {
     return if (rule is ConfigAware) {
         listOfNotNull(
             annotationSuppressorFactory(rule),
+            functionSuppressorFactory(rule),
         )
     } else {
         emptyList()
