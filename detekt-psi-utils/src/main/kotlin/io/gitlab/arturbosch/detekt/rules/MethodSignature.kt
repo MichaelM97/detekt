@@ -16,6 +16,7 @@ fun KtFunction.hasCorrectEqualsParameter() =
 
 fun KtNamedFunction.isMainFunction() = hasMainSignature() && (this.isTopLevel || isMainInsideObject())
 
+@Deprecated("Use `MethodSignature.fromString` instead")
 fun extractMethodNameAndParams(methodSignature: String): Pair<String, List<String>?> {
     val tokens = methodSignature.split("(", ")")
         .map { it.trim() }

@@ -1,50 +1,52 @@
-package io.gitlab.arturbosch.detekt.rules
+package io.github.detekt.tooling.api
 
 import org.assertj.core.api.Assertions.assertThat
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 
-class MethodSignatureSpec : Spek({
-    describe("extractMethodNameAndParams") {
+class FunctionSignatureSpec : Spek({
+    describe("MethodSignature.fromString") {
         listOf(
             TestCase(
                 testDescription = "should return method name and null params list in case of simplifies signature",
                 methodSignature = "java.time.LocalDate.now",
-                expectedMethodName = "java.time.LocalDate.now",
-                expectedParams = null
+                expectedFunctionSignature = FunctionSignature.Name("java.time.LocalDate.now"),
             ),
             TestCase(
                 testDescription = "should return method name and empty params list for full signature parameterless method",
                 methodSignature = "java.time.LocalDate.now()",
-                expectedMethodName = "java.time.LocalDate.now",
-                expectedParams = emptyList()
+                expectedFunctionSignature = FunctionSignature.Parameters("java.time.LocalDate.now", emptyList()),
             ),
             TestCase(
                 testDescription = "should return method name and params list for full signature method with single param",
                 methodSignature = "java.time.LocalDate.now(java.time.Clock)",
-                expectedMethodName = "java.time.LocalDate.now",
-                expectedParams = listOf("java.time.Clock")
+                expectedFunctionSignature = FunctionSignature.Parameters(
+                    "java.time.LocalDate.now",
+                    listOf("java.time.Clock"),
+                ),
             ),
             TestCase(
                 testDescription = "should return method name and params list for full signature method with multiple params",
                 methodSignature = "java.time.LocalDate.of(kotlin.Int, kotlin.Int, kotlin.Int)",
-                expectedMethodName = "java.time.LocalDate.of",
-                expectedParams = listOf("kotlin.Int", "kotlin.Int", "kotlin.Int")
+                expectedFunctionSignature = FunctionSignature.Parameters(
+                    "java.time.LocalDate.of",
+                    listOf("kotlin.Int", "kotlin.Int", "kotlin.Int"),
+                ),
             ),
             TestCase(
                 testDescription = "should return method name and params list for full signature method with multiple params " +
                     "where method name has spaces and special characters",
                 methodSignature = "io.gitlab.arturbosch.detekt.SomeClass.`some , method`(kotlin.String)",
-                expectedMethodName = "io.gitlab.arturbosch.detekt.SomeClass.some , method",
-                expectedParams = listOf("kotlin.String")
+                expectedFunctionSignature = FunctionSignature.Parameters(
+                    "io.gitlab.arturbosch.detekt.SomeClass.some , method",
+                    listOf("kotlin.String"),
+                ),
             )
         ).forEach { testCase ->
-            @Suppress("DEPRECATION")
             it(testCase.testDescription) {
-                val (methodName, params) = extractMethodNameAndParams(testCase.methodSignature)
+                val functionSignature = FunctionSignature.fromString(testCase.methodSignature)
 
-                assertThat(methodName).isEqualTo(testCase.expectedMethodName)
-                assertThat(params).isEqualTo(testCase.expectedParams)
+                assertThat(functionSignature).isEqualTo(testCase.expectedFunctionSignature)
             }
         }
     }
@@ -53,6 +55,5 @@ class MethodSignatureSpec : Spek({
 private class TestCase(
     val testDescription: String,
     val methodSignature: String,
-    val expectedMethodName: String,
-    val expectedParams: List<String>?
+    val expectedFunctionSignature: FunctionSignature,
 )
