@@ -1,27 +1,18 @@
 package io.gitlab.arturbosch.detekt.core.suppressors
 
+import io.github.detekt.tooling.api.FunctionSignature
 import io.gitlab.arturbosch.detekt.api.ConfigAware
 import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.psiUtil.getStrictParentOfType
 import org.jetbrains.kotlin.resolve.BindingContext
 
-/*
- * Possible improvement: don't only check name but also check for parameters.
- * ```yaml
- * ignoreFunctions:
- *   - 'toString()' # only functions called toString without parameter
- *   - 'compare(String)' # only functions called compare with one parameter of type String
- *   - 'equals' # every function called function (it doesn't matter it's parameters is ignored)
- * ```
- * This would not be a breaking change.
- */
 internal fun functionSuppressorFactory(rule: ConfigAware, bindingContext: BindingContext): Suppressor? {
-    val names = rule.valueOrDefault("ignoreFunction", emptyList<String>())
-    return if (names.isNotEmpty()) {
+    val signatures = rule.valueOrDefault("ignoreFunction", emptyList<String>()).map(FunctionSignature::fromString)
+    return if (signatures.isNotEmpty()) {
         { finding ->
             val element = finding.entity.ktElement
-            element != null && functionSuppressor(element, bindingContext, names)
+            element != null && functionSuppressor(element, bindingContext, signatures)
         }
     } else {
         null
@@ -31,18 +22,18 @@ internal fun functionSuppressorFactory(rule: ConfigAware, bindingContext: Bindin
 private fun functionSuppressor(
     element: KtElement,
     bindingContext: BindingContext,
-    names: List<String>,
+    functionSignatures: List<FunctionSignature>,
 ): Boolean {
-    return element.isInFunctionNamed(bindingContext, names)
+    return element.isInFunctionNamed(bindingContext, functionSignatures)
 }
 
 private fun KtElement.isInFunctionNamed(
     bindingContext: BindingContext,
-    names: List<String>,
+    methodSignatures: List<FunctionSignature>,
 ): Boolean {
-    return if (this is KtNamedFunction && name in names) {
+    return if (this is KtNamedFunction && methodSignatures.any { it.match(this, bindingContext) }) {
         true
     } else {
-        getStrictParentOfType<KtNamedFunction>()?.isInFunctionNamed(bindingContext, names) ?: false
+        getStrictParentOfType<KtNamedFunction>()?.isInFunctionNamed(bindingContext, methodSignatures) ?: false
     }
 }
