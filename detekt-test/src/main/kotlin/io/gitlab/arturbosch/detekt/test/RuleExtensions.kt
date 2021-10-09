@@ -65,7 +65,7 @@ fun BaseRule.compileAndLintWithContext(
     return lintWithContext(environment, content)
 }
 
-private fun getContextForPaths(environment: KotlinCoreEnvironment, paths: List<KtFile>) =
+fun getContextForPaths(environment: KotlinCoreEnvironment, paths: List<KtFile>): BindingContext =
     TopDownAnalyzerFacadeForJVM.analyzeFilesWithJavaIntegration(
         environment.project,
         paths,
