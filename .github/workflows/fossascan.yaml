@@ -7,6 +7,7 @@ on:
 
 jobs:
   fossa-scan:
+    if: ${{ github.repository == 'detekt/detekt' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
@@ -14,6 +15,5 @@ jobs:
 
       - name: Run FOSSA Scan
         uses: fossas/fossa-action@v1
-        if: ${{ github.repository == 'detekt/detekt'}}
         with:
           api-key: ${{ secrets.FOSSA_API_KEY }}
